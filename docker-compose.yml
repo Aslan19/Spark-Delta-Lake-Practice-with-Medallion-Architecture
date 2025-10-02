@@ -8,116 +8,116 @@ services:
   # ==============================================
   # POSTGRES - Airflow Metadata Database
   # ==============================================
-  postgres:
-    image: postgres:13
-    container_name: data_postgres
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
-    volumes:
-      - postgres_db_volume:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
-    restart: always
-    ports:
-      - "5432:5432"
-    networks:
-      - data_network
+  # postgres:
+  #   image: postgres:13
+  #   container_name: data_postgres
+  #   environment:
+  #     - POSTGRES_USER=airflow
+  #     - POSTGRES_PASSWORD=airflow
+  #     - POSTGRES_DB=airflow
+  #   volumes:
+  #     - postgres_db_volume:/var/lib/postgresql/data
+  #     - ./init-scripts:/docker-entrypoint-initdb.d
+  #   healthcheck:
+  #     test: ["CMD", "pg_isready", "-U", "airflow"]
+  #     interval: 10s
+  #     retries: 5
+  #     start_period: 5s
+  #   restart: always
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - data_network
 
   # ==============================================
   # REDIS - Airflow Message Broker
   # ==============================================
-  redis:
-    image: redis:7.2-alpine
-    container_name: data_redis
-    expose:
-      - 6379
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 30s
-      retries: 50
-      start_period: 30s
-    restart: always
-    networks:
-      - data_network
+  # redis:
+  #   image: redis:7.2-alpine
+  #   container_name: data_redis
+  #   expose:
+  #     - 6379
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 30s
+  #     retries: 50
+  #     start_period: 30s
+  #   restart: always
+  #   networks:
+  #     - data_network
 
   # ==============================================
   # AIRFLOW - Webserver, Scheduler, Worker
   # ==============================================
-  airflow-webserver:
-    image: apache/airflow:2.9.0
-    container_name: airflow_webserver
-    command: webserver
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
-      - AIRFLOW__CORE__FERNET_KEY=''
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
-    volumes:
-      - ./orchestration/dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./data:/opt/airflow/data
-    ports:
-      - "8080:8080"
-    restart: always
-    networks:
-      - data_network
+  # airflow-webserver:
+  #   image: apache/airflow:2.9.0
+  #   container_name: airflow_webserver
+  #   command: webserver
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+  #     - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+  #     - AIRFLOW__CORE__FERNET_KEY=''
+  #     - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+  #     - AIRFLOW__CORE__LOAD_EXAMPLES=false
+  #     - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+  #   volumes:
+  #     - ./orchestration/dags:/opt/airflow/dags
+  #     - ./logs:/opt/airflow/logs
+  #     - ./plugins:/opt/airflow/plugins
+  #     - ./data:/opt/airflow/data
+  #   ports:
+  #     - "8080:8080"
+  #   restart: always
+  #   networks:
+  #     - data_network
 
-  airflow-scheduler:
-    image: apache/airflow:2.9.0
-    container_name: airflow_scheduler
-    command: scheduler
-    depends_on:
-      - airflow-webserver
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
-    volumes:
-      - ./orchestration/dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./data:/opt/airflow/data
-    restart: always
-    networks:
-      - data_network
+  # airflow-scheduler:
+  #   image: apache/airflow:2.9.0
+  #   container_name: airflow_scheduler
+  #   command: scheduler
+  #   depends_on:
+  #     - airflow-webserver
+  #   environment:
+  #     - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+  #     - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+  #   volumes:
+  #     - ./orchestration/dags:/opt/airflow/dags
+  #     - ./logs:/opt/airflow/logs
+  #     - ./plugins:/opt/airflow/plugins
+  #     - ./data:/opt/airflow/data
+  #   restart: always
+  #   networks:
+  #     - data_network
 
-  airflow-worker:
-    image: apache/airflow:2.9.0
-    container_name: airflow_worker
-    command: celery worker
-    depends_on:
-      - airflow-scheduler
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
-      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
-    volumes:
-      - ./orchestration/dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./data:/opt/airflow/data
-    restart: always
-    networks:
-      - data_network
+  # airflow-worker:
+  #   image: apache/airflow:2.9.0
+  #   container_name: airflow_worker
+  #   command: celery worker
+  #   depends_on:
+  #     - airflow-scheduler
+  #   environment:
+  #     - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+  #     - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
+  #     - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+  #   volumes:
+  #     - ./orchestration/dags:/opt/airflow/dags
+  #     - ./logs:/opt/airflow/logs
+  #     - ./plugins:/opt/airflow/plugins
+  #     - ./data:/opt/airflow/data
+  #   restart: always
+  #   networks:
+  #     - data_network
 
   # ==============================================
   # SPARK MASTER + WORKERS (Bitnami Images + Delta)
@@ -153,21 +153,21 @@ services:
     networks:
       - data_network
 
-  spark-worker-2:
-    image: bitnami/spark:3.5.0
-    container_name: spark_worker_2
-    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    depends_on:
-      - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_WORKER_MEMORY=2G
-      - SPARK_WORKER_CORES=2
-    volumes:
-      - ./data:/opt/spark/data
-      - spark_logs:/opt/spark/logs
-    networks:
-      - data_network
+  # spark-worker-2:
+  #   image: bitnami/spark:3.5.0
+  #   container_name: spark_worker_2
+  #   command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+  #   depends_on:
+  #     - spark-master
+  #   environment:
+  #     - SPARK_MODE=worker
+  #     - SPARK_WORKER_MEMORY=2G
+  #     - SPARK_WORKER_CORES=2
+  #   volumes:
+  #     - ./data:/opt/spark/data
+  #     - spark_logs:/opt/spark/logs
+  #   networks:
+  #     - data_network
 
   # ==============================================
   # JUPYTER LAB with PySpark + Delta
@@ -180,7 +180,8 @@ services:
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - JUPYTER_TOKEN=datascience123
-      - SPARK_MASTER=spark://spark-master:7077
+      # Make Spark inside Jupyter talk to the external Spark master
+      - PYSPARK_SUBMIT_ARGS=--master spark://spark-master:7077 pyspark-shell
     volumes:
       - ./scripts/notebooks:/home/jovyan/notebooks
       - ./data:/home/jovyan/data
@@ -188,6 +189,7 @@ services:
       - spark-master
     networks:
       - data_network
+
 
   # ==============================================
   # MINIO - S3 Compatible Object Storage
@@ -210,49 +212,49 @@ services:
   # ==============================================
   # PROMETHEUS + GRAFANA
   # ==============================================
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: data_prometheus
-    ports:
-      - "9091:9090"
-    volumes:
-      - ./monitoring/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    networks:
-      - data_network
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: data_prometheus
+  #   ports:
+  #     - "9091:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus:/etc/prometheus
+  #     - prometheus_data:/prometheus
+  #   networks:
+  #     - data_network
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: data_grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=dataviz123
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - data_network
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: data_grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=dataviz123
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   depends_on:
+  #     - prometheus
+  #   networks:
+  #     - data_network
 
   # ==============================================
   # ELASTICSEARCH
   # ==============================================
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: data_elasticsearch
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - data_network
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+  #   container_name: data_elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ES_JAVA_OPTS=-Xms1g -Xmx1g
+  #     - xpack.security.enabled=false
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - elasticsearch_data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - data_network
 
 # ==============================================
 # VOLUMES
@@ -261,9 +263,9 @@ volumes:
   postgres_db_volume:
   minio_storage:
   spark_logs:
-  prometheus_data:
-  grafana_data:
-  elasticsearch_data:
+  # prometheus_data:
+  # grafana_data:
+  # elasticsearch_data:
 
 # ==============================================
 # NETWORKS
