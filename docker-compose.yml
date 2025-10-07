@@ -132,7 +132,7 @@ services:
     environment:
       - SPARK_MODE=master
     volumes:
-      - ./data:/opt/spark/data
+      - ./data/raw:/opt/spark/data
       - spark_logs:/opt/spark/logs
     networks:
       - data_network
@@ -148,7 +148,7 @@ services:
       - SPARK_WORKER_MEMORY=2G
       - SPARK_WORKER_CORES=2
     volumes:
-      - ./data:/opt/spark/data
+      - ./data/raw:/opt/spark/data
       - spark_logs:/opt/spark/logs
     networks:
       - data_network
@@ -172,23 +172,23 @@ services:
   # ==============================================
   # JUPYTER LAB with PySpark + Delta
   # ==============================================
-  jupyter:
-    image: jupyter/pyspark-notebook:latest
-    container_name: data_jupyter
-    ports:
-      - "8888:8888"
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-      - JUPYTER_TOKEN=datascience123
-      # Make Spark inside Jupyter talk to the external Spark master
-      - PYSPARK_SUBMIT_ARGS=--master spark://spark-master:7077 pyspark-shell
-    volumes:
-      - ./scripts/notebooks:/home/jovyan/notebooks
-      - ./data:/home/jovyan/data
-    depends_on:
-      - spark-master
-    networks:
-      - data_network
+  # jupyter:
+  #   image: jupyter/pyspark-notebook:latest
+  #   container_name: data_jupyter
+  #   ports:
+  #     - "8888:8888"
+  #   environment:
+  #     - JUPYTER_ENABLE_LAB=yes
+  #     - JUPYTER_TOKEN=datascience123
+  #     # Make Spark inside Jupyter talk to the external Spark master
+  #     - PYSPARK_SUBMIT_ARGS=--master spark://spark-master:7077 pyspark-shell
+  #   volumes:
+  #     - ./scripts/notebooks:/home/jovyan/notebooks
+  #     - ./data/raw:/home/jovyan/data
+  #   depends_on:
+  #     - spark-master
+  #   networks:
+  #     - data_network
 
 
   # ==============================================
