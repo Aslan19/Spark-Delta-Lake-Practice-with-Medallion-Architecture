@@ -3,7 +3,7 @@ import logging
 import os
 
 class DataIngestor:
-    def __init__(self, spark: SparkSession, base_path: str = "/opt/spark/data/lakehouse"):
+    def __init__(self, spark: SparkSession, base_path: str = "s3a://lakehousetst/"):
         self.spark = spark
         self.base_path = base_path  # root folder for bronze/silver/gold
 
